@@ -1,8 +1,10 @@
-# chinese.misc
+# Welcome to chinese.misc
 # 中文文本分析方便工具R包chinese.misc的中文说明
+#
+# by: Wu Jiang (吴江)
 # 
-# 本使用说明目前尚未完成，预计将于2017年4月以前完成。
-# This Chinese manual has not been finished. It will be finished before Apr 2017.
+# 本使用说明目前已完成！以后或许会修改补充，但不会有大变动。如果以后R包更新，本说明也会相应更新。
+# This Chinese manual has been finished. Perhaps I'll add or slightly modify something, if needed. When the package is updated, the Chinese manual will also be updated.
 # 
 # ################
 # 一、使用方法
@@ -10,6 +12,9 @@
 # # 在Windows下的 R >=3.3.2 中，键入
 # install.packages('chinese.misc')
 # library(chinese.misc)
+# #同时，为了完成本文所举的例子，还需加载以下包
+# library(tm)
+# library(jiebaR)
 #
 # ################
 # 二、本R包的特点
@@ -106,11 +111,11 @@
 # special代表你想要的文件的模式，默认是收集所有文件，但如果你只想要以txt结果的文件，就设special='txt$'。
 #
 # #举个栗子
-# all_file=dir_or_file(f)
+# all_file=dir_or_file(f, special='txt$')
 # all_file
 # #看看是不是收集到了所有文件
 # #如果你的文件名有重复，也没事，反正最后会去重的
-# all_file=dir_or_file(f, f)
+# all_file=dir_or_file(f, f, special='txt$')
 #
 # ######      scancn
 #
@@ -128,6 +133,7 @@
 # 
 # 其中，enc是你的文件的编码。如果你的很多文件有不同的编码，或者你不知道编码，或者你已经被乱码搞得头大了，就不用改了，让它自动检测吧。如果你确认你的文件就是某种编码，那就直接设一个值就行了，可省下几微秒的检测时间。
 # read_2nd询问的是，是否要对被视为UTF-8文件但实际上并不是且无法正常读取的文件进行二次读取。默认为TRUE，基本上不用您改。
+# 不要用scancn来读.csv/.xls/.xlsx、.doc/.docx、.pdf/.caj文件，它不是用来读这些的！它可以读的包括.txt、.rtf、.R、.py等等是普通文本的文件，以及没有后缀名的文件。
 #
 # 写个循环，依次读取五个文件，看能不能读出来。
 # for (each in all_file){
@@ -243,6 +249,238 @@
 # #再看用词性来删词的效果
 # slim_text(x)
 # # 词语数大约少了少分之一
-
-
+#
+#
+# （三）文件格式互转
+#
+# 有些童鞋喜欢把文本全都放到一个能够用EXCEL打开的表格里；而我则喜欢让每个文本单独占一个文件，这两种格式各有利弊。所以，如果你的文本的格式不合你意，可以用以下两个函数来转换。
+#
+# ######      txt2csv
+#
+# txt2csv(
+#	..., #一个或多个文件夹名或文件名
+# 	csv, #你要把形成表格的文本写到什么csv文件里
+# 	must_txt = TRUE,  #是否要读取的必须是txt文件
+# 	na_in_txt = NULL # 你的独立文件里的什么内容会被视为缺失值
+# ) 
+#
+# 参数csv必须是个可创建的csv文件，即，必须以csv结尾，不要尝试xls/xlsx ！
+# must_txt表示是否只读取txt文件，默认为是。如果你要读其它文件，请设为FALSE。
+# na_in_txt是指，被scancn读取的哪些内容会视为无实质内容。无论如何，" "也就是一个空格，肯定会被视为缺失，但是你还可以加上其它值。比如，如果你的文本是网页，而有的网页返回的是"404 ERROR"的话，你可以把这个算成缺失。
+#
+# #举个例子，把几个文件写到CSV里
+# f1_and_f2=paste(f, c('f1', 'f2'), sep='/')
+# txt2csv(f1_and_f2, csv=paste(f, 'iamcsv.csv', sep='/'))
+#
+# 成功写入后，会发现表格中第一列为完整路径名，第二列为内容。假如原文件没有实质内容，会写入NA。
+#
+#
+# ######      csv2txt
+# 
+# 真的，txt难道不是打开最省事的文件么。喜欢txt的童鞋可以方便地用这个函数把写到表格里的文本转成txt。
+# 这个函数的特点是会自动为每个文件的文件名添加一个唯一的序列号。比如你有1234个文件，那么由于1234是四位数，所以会给文件加上0001, 0002, 0012, 0348, 1022这样的号码，而不是1, 2, 12, 348, 1022。这样是为了保证在任何软件上都能以同样的顺序出现在你眼前。另外，加序列号也是因为，用户指定的那列字符可能含有WINDOWS不可接受的文件名符号，比如英文冒号，这会导致你指定的文件名被完全或部分修改，从而出现相同的文件名（其实就算不对文件名进行修改，那列数据仍然可能有相同的单元格），因而必须用唯一数值来区分。
+#
+# csv2txt(
+# 	csv, #你要读的CSV文件
+# 	folder, #你要把分开来的文本写到什么文件夹里
+# 	which, #CSV里哪一列是文本，务必看以下说明
+# 	header = TRUE, #CSV是否有表头
+# 	row.names = NULL, #CSV是否有行标题
+# na_in_csv = c(NA, "", " ", "?", "NA", "999"), #CSV表格里哪些值被视为缺失值 
+# na_in_txt = " ", #若表格中的文本被视为缺失，在独立文本中被写成什么
+# name_col = NULL, #CSV表格哪一列可用作文件名
+# ext = "txt" #独立文件是什么格式
+# )
+#
+# folder必须是个有效文件夹名，如果它不存在，程序会尝试创建它
+# header和row.names这两个是要传递给read.csv的，这个大家都知道。不过在现在这个函数里row.names只能有两个值，要么是NULL，表示无行标题，要么是1，表示第1行是行标题，这意味着你的CSV表格必须也是这样的。
+# which和name_col必须注意。假如你的CSV是在第1列有行标题的，第2列是文件名，第3列是文本，那么，实际上你的表格只有两列，因为第1列是行标题，因此name_col应该埴1（尽管它在CSV中是第2列），which应该是2（尽管它在CSV中是第3列）。如果没有行标题，那么name_col是2，which是3。
+# na_in_txt是指，你的表格的单元格中的什么值会被视为缺失值。无论如何，"", " ", "?", "NA", "999"是无论你怎么设置都会被当成缺失的，但是你还可以往上加其它值，比如"0"、"no content"什么的。
+# na_in_txt假如你的那个单元格是缺失，那么当写入独立文本时写入什么，默认是一个空格。
+# ext是独立文本的格式，只能是"txt"、"rtf"和""（即无后缀）三个值；如果是其它的无道值，会被自动设成""。
+#
+#
+# （四）类型判断、类型转化
+#
+# ######      is_character_vector
+#
+# is_character_vector(
+#	x, 
+# len = NULL, 
+# allow_all_na = TRUE
+# )
+#
+# 这个函数用来判断对象是不是一个字符向量，且具有一定长度；is.character是最常用的判断是否是字符的函数，但是即使是对一个由字符组成的矩阵，它也仍然返回TRUE，因此并不能判断对象是否是一个向量。不过最重要的是它用来判断一个值是否是有效的值。所谓有效，就是指这个一个值被传给其它函数处理时，不会发生错误。比如说，is.character(character(0))的结果是TRUE，但是character(0)对很多函数来说并不是一个有效的参数值。所以is_character_vector重在判断一个值是否是有效的。
+# 对于0长度的对象，它肯定返回FALSE；
+# 对于不是向量的对象，肯定返回FALSE；
+# 对于只有一项且是NA的对象，无论它是NA，还是character(NA)，都是FALSE；
+# 对于有很多项，但每个字符都是NA的对象，结果取决于参数allow_all_na的值，如果是TRUE，即允许，则返回TRUE，否则就是NA；
+# 必须满足指定的长度。如果len=NULL，则是不限长度；假如len=c(2,10)，则表示要么是2，要么是10；如果len=c(2:10)，则表示2至10均可。
+#
+# 多举些例子吧：
+# is_character_vector(character(0))
+# is_character_vector(NA)
+# is_character_vector(as.character(NA))
+# is_character_vector(c(NA, NA))
+# is_character_vector(as.character(c(NA,NA)))
+# is_character_vector(as.character(c(NA, NA)), allow_all_na = FALSE)
+# is_character_vector(as.character(c(NA, NA)), allow_all_na = TRUE)
+# is_character_vector(matrix(c("a", "b", "c", "d"), nr = 2))
+# is_character_vector(c("a", "b", "c"), len = c(1, 10))
+# is_character_vector(c("a", "b", "c"), len = c(1:10))
+#
+# ######      is_positive_integer
+# 
+# 这个函数用来判断对象是否是一个由有效正整数组成的符合一定长度的向量。什么叫”有效“呢？比如说3.0，这个数你用is.integer来判断，就是FALSE，但是其实它完全可以被当成一个正整数来使，因为就是有效的。
+#
+# is_positive_integer (x, len = NULL)
+# 
+# 如果对象长度为0，则返回FALSE，因为is.integer(integer(0))是TRUE，但是is_positive_integer(integer(0))就是FALSE；
+# 如果是混杂的，比如c(1, 2.0)这样的，也是TRUE；
+# 不允许有任何NA，否则判断为FALSE，这一定与is_character_integer不同；
+# 必须符合由len指定的长度，默认为NULL，即不限长度。 
+#
+# 还是举例吧
+# is_positive_integer(NULL)
+# is_positive_integer(as.integer(NA))
+# is_positive_integer(integer(0))
+# is_positive_integer(3.0)
+# is_positive_integer(3.3)
+# is_positive_integer(-1:5)
+# is_positive_integer(1:5, len = c(2, 10))
+# is_positive_integer(1:5, len = c(2:10))
+#
+#
+# ######   as.character2
+#
+# as.character2(...)
+#
+# 是的，这是个增强版的as.character，它可一次转化多个对象，但更重要的是它的转化能力比as.character更强。
+# 可以转化列表，以及嵌套列表，即列表的列表，列表的列表的列表……
+# 可以转化数据框；
+# 可以转化在屏幕上显示为字符的因子，以及放在列表中或数据框中的因子，你在屏幕上看见的是什么样，转化出来就是什么样。
+# 对于NULL，会返回character(0)，而不会返回NULL或'NULL'，这样在传给其它函数时会相对安全些。
+#
+# 上例子吧
+# as.character2(NULL, NULL)
+# null_list <- list(a = NULL, b = NULL, c = NULL)
+# as.character2(null_list)
+# # 列表套数据框
+# df <- data.frame(matrix(c(66,77,NA,99), nr = 2))
+# l <- list(a = 1:4, b = factor(c(10,20,NA, 30)), c = c('x', 'y', NA, 'z'), d = df)
+# as.character2(l)
+# l2 <- list(l, l, cha = c('a', 'b', 'c'))
+#
+#
+# ######      as.numeric2(...)
+#
+# 这个是as.numeric的升级版。
+# 与as.numeric不同的是，它能将在屏幕上显示为数值的因子转化成你看到的样子。而且它也像as.character2一样可用来处理列表、数据框。
+#
+# 上例子：
+# a <- c(55, 66, 77, 88, 66, 77, 88)
+# b <- factor(a)
+# df <- data.frame(a, b)
+# as.numeric2(df, a*2)
+# l <- list(a, a*2)
+# as.numeric2(l)
+# l2 <- list(l, l)
+# as.numeric2(l2)
+#
+# 
+#（五）查看、统计词频
+#
+# ######      output_dtm 
+# DTM对象是不能直接查看的，也不可能直接写到硬盘上，我们用一个简单的函数来转化一下。
+# output_dtm(
+#     x, 
+#     outputfile = NULL, 
+#     doc_name = NULL
+# ) 
+#
+# x是DTM或TDM对象。
+# output_file默认是NULL，即生成矩阵，不写文件，或者，应该是一个CSV文件的名称，也就是在将DTM/TDM转化成矩阵后写到什么文件里。
+# doc_name，当转化成矩阵或写入文件时，给每个文本加一个名字。默认是NULL，即不加，此时就是1, 2,3...。或者，你也可以放一个长度与文件数相同的字符向量。
+#
+# 举例：
+# x <- c(
+#   "Hello, what do you want to drink?", 
+#   "drink a bottle of milk", 
+#   "drink a cup of coffee", 
+#   "drink some water")
+# dtm <- corp_or_dtm(x, from = "v", type = "dtm")
+# m=output_dtm(dtm, doc_name = paste("doc", 1:4))
+#
+#
+# ######      sort_tf
+#
+# sort_tf (
+# 	x, 
+# 	top = 10, 
+# 	type = "dtm", 
+# 	todf = FALSE, 
+# 	must_exact = FALSE
+# )
+#
+# x是DTM或TDM对象；但是也可以是matrix。如果是matrix，请务必用type指明你的这个是"dtm"还是"tdm"。
+# top是显示最靠前的多少个词，默认是10。所有词被加总后会按词频从高到底排序，top用来指明要看前多少个词。不过假如你指定看前5个词，第5个词的词频是20，但还有两个词的词频也是20，因此此时函数会显示7个词。如果你真的就只要5个词，那么就把must_exact设成TRUE就行了，默认是FALSE。
+# todf是指是否转化成数据框。默认是FALSE，即不输入任何结果，而是直接把词语和主词频用&连起来，打印到屏幕上。这样，你就可以复制粘贴到EXCEL之类的软件上了。如果是TRUE，则回返回由词语和词频组成的数据框。
+#
+# 举例：
+# x <- c(
+#  "Hello, what do you want to drink?", 
+#   "drink a bottle of milk", 
+#   "drink a cup of coffee", 
+#   "drink some water", 
+#   "hello, drink a cup of coffee")
+# dtm <- corp_or_dtm(x, from = "v", type = "dtm")
+# sort_tf(dtm, top = 5)
+#
+#
+# （六）其它函数
+#
+# ######      match_pattern
+#
+# match_pattern (pattern, where, vec_result = TRUE)
+#
+# 这个函数就是简单地提取包含某个模式的字符。
+# pattern为要满足的模式。
+# where为要在什么字符里提取。
+# vec_result为是否将结果转化成向量输出，默认是TRUE。如果是FALSE的话，那么where有几项，就会生成一个有几项的列表，每一列代表where中的一项的匹配结果。
+#
+# 举例：
+#
+# p <- "x.*?y"
+# x <- c("x6yx8y", "x10yx30y", "aaaaaa", NA, "x00y")
+# y <- match_pattern(p, x)
+# y <- match_pattern(p, x, vec_result = FALSE)
+#
+#
+# ######      tf2doc
+#
+# 有时你已经把一个DTM转化成矩阵了，但是某个函数却需要输入DTM对象，或者，有的软件需要你输入一段文本。这时就可以用tf2doc来还原出一个已经分好词且每个词之间用空格相连的文本了，也可能还会将它再弄成语料或DTM。这个函数其实就是封装一下rep而已。
+# tf2doc (term, num)
+#
+# term是词语向量，但不是的话也没关系，反正程序会强行转化，所以放个什么数据框、列表、矩阵之类的进来都没问题。num是与term等长的整数向量，但是若不是向量的话，程序也会尝试自动转化。
+# term中若有缺失值，"NA"这个词会被重复。但是term中不能有缺失值。
+#
+# 举例：
+# # 一个是矩阵，一个是因子，都没问题
+# x <- matrix(c("coffee", "milk", "tea", "cola"), nrow = 2)
+# y <- factor(c(5:8))
+#
+#
+# ######      m2doc
+#
+# 这个是把数值矩阵转化成文件。它把矩阵当成DTM（不能是TDM），把列标题当词语，表格的每行代表一个文件。如果没有列标题，会自动用term1, term2...代替。
+#
+# m2doc (m, checks = FALSE)
+#
+# m是数值矩阵。checks是是否检测m是正常输入，包括是否是数值，是否均是正数，是否无NA。为加快速度，可设为不检测，即FALSE，这也是默认值。
+#
+# 举例：
+# s <- sample(1:5, 20, replace = TRUE)
+# m <- matrix(s, nrow = 5)
+# colnames(m) <- c("r", "text", "mining", "data")
+#'m2doc(m)
 
