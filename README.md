@@ -1,8 +1,10 @@
 # Welcome to chinese.misc
 # 中文文本分析方便工具R包chinese.misc的中文说明
 #
-# by: Wu Jiang (吴江)
+# by: Wu Jiang (吴江)，微信号：theblackriver
 # 
+# 本文地址：
+# https://github.com/githubwwwjjj/chinese.misc
 # 本使用说明目前已完成！以后或许会修改补充，但不会有大变动。如果以后R包更新，本说明也会相应更新。
 # This Chinese manual has been finished. Perhaps I'll add or slightly modify something, if needed. When the package is updated, the Chinese manual will also be updated.
 # 
@@ -10,11 +12,15 @@
 # 一、使用方法
 # ################
 # # 在Windows下的 R >=3.3.2 中，键入
+```R
 # install.packages('chinese.misc')
 # library(chinese.misc)
+```
 # #同时，为了完成本文所举的例子，还需加载以下包
+# ```R
 # library(tm)
 # library(jiebaR)
+# ```
 #
 # ################
 # 二、本R包的特点
@@ -483,7 +489,7 @@
 # m <- matrix(s, nrow = 5)
 # colnames(m) <- c("r", "text", "mining", "data")
 #'m2doc(m)
-
-
+#
+#
 # ============================
 # End
