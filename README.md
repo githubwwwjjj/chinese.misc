@@ -106,10 +106,9 @@ write.table(x, paste(f, 'd5.txt', sep='/'), row.names=FALSE, col.names=FALSE, qu
 #  
 # ######      dir_or_file
 #
-# #现在你已经有了一个装了五个文件的文件夹f。
-# #用dir可以收集这个文件里的文件名
-# dir(f)
-# #然而，dir只能下到文件夹的一层，怎样才能读到嵌套在子文件夹里的文件呢，这时候就要用chinese.misc包里的dir_or_file了。
+# 现在你已经有了一个装了五个文件的文件夹f。
+# 用dir(f)可以收集这个文件里的文件名
+# 然而，dir只能下到文件夹的一层，怎样才能读到嵌套在子文件夹里的文件呢，这时候就要用chinese.misc包里的dir_or_file了。
 # 这个函数允许你同时输入多个文件夹或文件的名称，两者混着往里放也没事；这些放进去的名字，既可以是绝对路径，也可以是相对路径，也可能是以~开头的路径。
 # 无论如何，这个函数会判断文件是否存在（如果不存在则会报错），去掉重复的文件，然后把从小到大放了序的全部文件名收集起来。
 # 假如你要分析的文件在不同的文件夹里，甚至有的在C盘，有的在F盘，有的在工作目录里，有的不在，有的是文件夹的名称，有的是文件的名称，那么就可以用这个函式来整理和收集你的文件名了。
@@ -156,7 +155,9 @@ for (each in all_file){
     text=scancn(each)
     print(text)
 }
-```#都打印在你的屏幕上了吧！实际上第一、第二个文件都是UTF-8编码，第三、四个文件是GB18030编码，而scancn会主动对编码进行检测。
+```
+#
+# 都打印在你的屏幕上了吧！实际上第一、第二个文件都是UTF-8编码，第三、四个文件是GB18030编码，而scancn会主动对编码进行检测。
 #
 # ######      seg_file
 # 中文文本分析的一个突出特点就是需要分词。当然，分词也很简单，用jiebaR包先设个分词器，再segment( )就行了。但是，我们可以用chinese.misc包里的seg_file来做的，这个包也是调用jiebaR来分词，但是更适合懒人使用。偷懒不需要借口！！！
@@ -186,11 +187,15 @@ seg_file(
 # ext指的是，如果你要把分词的结果写到硬盘上，文件要什么后缀名。这个只能设成"txt"、 "rtf"或""。否则，会报错。
 #
 # 看几个栗子，用来证明真心不需要您亲自设定很多参数。
-# y=seg_file(all_file) #输入是文件，但最后结果不写入硬盘
-# seg_file(all_file, folder='hehe/seg') #输入是文件，最后写进硬盘，同时在hehe文件夹里新创新了一个文件夹。
-# all_text=unlist(lapply(all_file, scancn))
-# y=seg_file(all_text, from='v') #all_text已是是待处理的文本向量了，而不是文件名。最后不写入。
-# seg_file(all_text, from='v', folder='hehe/seg2') #直接处理文本，最后写入文件夹，同时创新一个seg2文件夹。
+#
+```R
+y=seg_file(all_file) #输入是文件，但最后结果不写入硬盘
+seg_file(all_file, folder='hehe/seg') #输入是文件，最后写进硬盘，同时在hehe文件夹里新创新了一个文件夹。
+ all_text=unlist(lapply(all_file, scancn))
+y=seg_file(all_text, from='v') #all_text已是是待处理的文本向量了，而不是文件名。最后不写入。
+seg_file(all_text, from='v', folder='hehe/seg2') #直接处理文本，最后写入文件夹，同时创新一个seg2文件夹。
+```
+#
 #
 # ######      corp_or_dtm
 #
@@ -405,6 +410,7 @@ df <- data.frame(matrix(c(66,77,NA,99), nr = 2))
 l <- list(a = 1:4, b = factor(c(10,20,NA, 30)), c = c('x', 'y', NA, 'z'), d = df)
 as.character2(l)
 l2 <- list(l, l, cha = c('a', 'b', 'c'))
+as.character2(l2)
 ```
 #
 # ######      as.numeric2(...)
@@ -448,7 +454,7 @@ x <- c(
   "drink a cup of coffee", 
   "drink some water")
 dtm <- corp_or_dtm(x, from = "v", type = "dtm")
-m=output_dtm(dtm, doc_name = paste("doc", 1:4))
+m <- output_dtm(dtm, doc_name = paste("doc", 1:4))
 ```
 #
 #
