@@ -13,8 +13,8 @@
 # ################
 # # 在Windows下的 R >=3.3.2 中，键入
 ```R
-# install.packages('chinese.misc')
-# library(chinese.misc)
+install.packages('chinese.misc')
+library(chinese.misc)
 ```
 # #同时，为了完成本文所举的例子，还需加载以下包
 # ```R
