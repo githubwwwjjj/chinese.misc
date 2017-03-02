@@ -8,6 +8,7 @@
 # 2，您可查看自己电脑中tm包的版本，如果不是0.7的话，那么还是完全没有问题的，可正常使用。如果已经是0.7版本了，那么还麻烦您等待chinese.misc包更新。查看tm包版本的方法是在R里键入packageVersion("tm")。
 # 3，如果您的tm版本已经是0.7了，那么您可以先remove.packages('tm')删掉tm包，然后到http://mirrors.ustc.edu.cn/CRAN/src/contrib/Archive/tm/
 # 这里可手动下载0.6.2版的tm，装上这一版就行了。
+# 4，您也可以用邮件或微信联系本包作者提出相关问题。
 # 感谢关注！
 # 
 # 本文地址：
