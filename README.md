@@ -2,6 +2,8 @@
 # 中文文本分析方便工具R包chinese.misc的中文说明
 #
 # by: Wu Jiang (吴江)，微信号：theblackriver
+#
+#重要提示：由于2月27日tm包升级到0.7版本，导致新下载安装本包后corp_or_dtm函数无法正常使用。目前这个问题已能够解决，但是从完成文档到CRAN审查通过还需大约两周的时间。您可关注本页面，待两周后更新到0.1.2版本并解决该问题时，会在此通知。在此期间，您可查看自己电脑中tm包的版本，如果不是0.7的话，那么还是完全没有问题的，可正常使用。如果已经是0.7版本了，那么还麻烦您等待chinese.misc包更新。查看tm包版本的方法是在R里键入packageVersion("tm")。感谢支持。
 # 
 # 本文地址：
 # https://github.com/githubwwwjjj/chinese.misc
