@@ -2,19 +2,11 @@
 # 中文文本分析方便工具R包chinese.misc的中文说明
 #
 # by: Wu Jiang (吴江)，微信号：theblackriver
-#
-#重要提示：由于2月27日tm包升级到0.7版本，导致新下载安装本包后corp_or_dtm函数无法正常使用，运行时会报错。目前这个问题在代码方面已解决，但是从完成文档到CRAN审查通过还需大约两周的时间。因此：
-# 1，您可关注本页面，待两周后更新到0.1.2版本并解决该问题时，会在此通知。
-# 2，您可查看自己电脑中tm包的版本，如果不是0.7的话，恭喜，那么还是完全没有问题的，可正常使用。如果已经是0.7版本了，那么还麻烦您等待chinese.misc包更新。查看tm包版本的方法是在R里键入packageVersion("tm")。
-# 3，如果您的tm版本已经是0.7了，那么您可以先remove.packages('tm')删掉tm包，然后到http://mirrors.ustc.edu.cn/CRAN/src/contrib/Archive/tm/
-# 这里可手动下载0.6.2版的tm，装上这一版就行了。
-# 4，您也可以用邮件或微信联系本包作者提出相关问题。
-# 感谢关注！
 # 
 # 本文地址：
 # https://github.com/githubwwwjjj/chinese.misc
-# 本使用说明目前已完成！以后或许会修改补充，但不会有大变动。如果以后R包更新，本说明也会相应更新。
-# This Chinese manual has been finished. Perhaps I'll add or slightly modify something, if needed. When the package is updated, the Chinese manual will also be updated.
+# 
+# 重要通知：0.1.3版的chinese.misc已更新，请通过install.packages('chinese.misc')来安装。这一版解决了由于tm包近期升级带来的生成中文dtm时乱码的情况，只要你的文件能正常读出来，那么在生成dtm时就不会乱码。同时，也提高了读文件时应对乱码的能力。另外，增加了计算词语关联和话题增减趋势的函数。
 # 
 # ################
 # 一、使用方法
@@ -71,11 +63,13 @@ library(jiebaR)
 # as.numeric2
 #
 #
-# （五）查看、统计词频
+# （五）查看、统计词频、查看词语关联
 # output_dtm
 # sort_tf
+# word_cor (0.1.3版加入)
 #
 # （六）其它函数
+# topic_trend (0.1.3版加入)
 # tf2doc
 # m2doc
 # match_pattern
@@ -93,7 +87,7 @@ library(jiebaR)
 ```R
 a_new='hehe' #If you want to change folder name, just change this.
 gwd=getwd()
-f=paste(gsub('/', '', gwd), a_new, sep='/')
+f=paste(gsub('/$', '', gwd), a_new, sep='/')
 if (dir.exists(f)) stop ('Folder already exists. Please change a name.')
 dir.create(f)
 dir.create(paste(f, 'f1', sep='/'))
@@ -117,8 +111,8 @@ write.table(x, paste(f, 'd5.txt', sep='/'), row.names=FALSE, col.names=FALSE, qu
 # 现在你已经有了一个装了五个文件的文件夹f。
 # 用dir(f)可以收集这个文件里的文件名
 # 然而，dir只能下到文件夹的一层，怎样才能读到嵌套在子文件夹里的文件呢，这时候就要用chinese.misc包里的dir_or_file了。
-# 这个函数允许你同时输入多个文件夹或文件的名称，两者混着往里放也没事；这些放进去的名字，既可以是绝对路径，也可以是相对路径，也可以是以~开头的路径。
-# 无论如何，这个函数会判断文件是否存在（如果不存在则会报错），去掉重复的文件，然后把从小到大排了序的全部文件名收集起来。
+# 这个函数允许你同时输入多个文件夹或文件的名称，两者混着往里放也没事；这些放进去的名字，既可以是绝对路径，也可以是相对路径，也可能是以~开头的路径。
+# 无论如何，这个函数会判断文件是否存在（如果不存在则会报错），去掉重复的文件，然后把从小到大放了序的全部文件名收集起来。
 # 假如你要分析的文件在不同的文件夹里，甚至有的在C盘，有的在F盘，有的在工作目录里，有的不在，有的是文件夹的名称，有的是文件的名称，那么就可以用这个函式来整理和收集你的文件名了。
 ```R
 dir_or_file (
@@ -129,7 +123,7 @@ dir_or_file (
 # 其中，...最好是字符或字符向量，但如果是一个由文件名组成的矩阵、列表什么的，也OK，反正程序会尝试进行转化。
 # special代表你想要的文件的模式，默认是收集所有文件，但如果你只想要以txt结果的文件，就设special='txt$'。
 #
-# #举个栗子
+# 举个栗子
 ```R
 all_file=dir_or_file(f, special='txt$')
 all_file
@@ -226,12 +220,13 @@ corp_or_dtm(
 ```
 # ...必须是多个字符，不能像dir_or_file里那样可以是各种对象，因为在corp_or_dtm里不会进行强制转换。（主要是考虑到程序跑的速度！！！）
 # from是要告诉程序你这些字符是文件或文件夹的名子呢，还是说这些字符本身就是你要分词的文本。默认为'dir'，也就是文件/文件夹名，如果输入本身就是文本，务必要改成from='v'，否则程序会把输入当文件名处理，然后显然就要报错了。
-# type，你最后想让程序输出什么？设成c, corp, corpus不用区分大小小，表明你要的是输出Corpus对象；如果是dtm、DTM，就是文档-词项矩阵；如果是tdm、TDM，则是词语-文档矩阵；如果是其它的值，也会生成Corpus。默认是生成Corpus。当然，我猜您最想要的是dtm吧，还麻烦您手动改一下。
-# my_cutter与在seg_file中不同，现在它既可能是函数使用的分词器，也可能是NULL。请加载jiebaR包生成。如果你不设它的话，也会使用一个预先存在的默认分词器。如果你不是想为分词器添加新词的话，这一项也不用麻烦您设了。如果是NULL的话，就是不进行分词，这适用于你的文本已经分过词而不用再分词的情况。
+# type，你最后想让程序输出什么？设成c, corp, 任何以C或c开头的，都是在告诉程度你最后要的是Corpus对象；如果是以D或d开头的，就是文档-词项矩阵；如果是以T或t开头的，就是词语-文档矩阵；如果是其它的值，也会生成Corpus。默认是生成Corpus。当然，我猜您最想要的是dtm吧，还麻烦您手动改一下。
+# mycutter与在seg_file中不同，现在它既可能是函数使用的分词器，也可能是NULL。请加载jiebaR包生成。如果你不设它的话，也会使用一个预先存在的默认分词器。如果你不是想为分词器添加新词的话，这一项也不用麻烦您设了。如果是NULL的话，就是不进行分词，这适用于你的文本已经分过词而不用再分词的情况。
 # enc是编码，你可以指定一个文件编码，但也可以让它默认为'auto'，即自动检测。
-# stop_word需设定一个字符向量作为停用词。默设为NULL，即不去除。当然，大家可能比较懒，又想去除停用词，又懒得去找停用词表，就算有也懒得加载。嗯，好的，没事，只要设stop_word='jiebar'就行！！！这样就直接使用jiebaR的停用词了。
+# stop_word需设定一个字符向量作为停用词。默设为NULL，即不去除。当然，大家可能比较懒，又想去除停用词，又懒得去找停用词表，就算有也懒得加载。嗯，好的，没事，只要设stop_word='jiebar'或'auto'就行！！！这样就直接使用jiebaR的停用词了。
 # stop_pattern可能光去除停用词还不够，你还想去除具有某种模式的所有词，那么可在这里设个正则表达式向量。默认是NULL，多数情况上不用管，反正大家基本上也不用这种方法去除停用词。
-# control是传递给DocumentTermMatrix或TermDocumentMatrix的参数。你可以自己设，不过不设也行，反正会指向一个默认值DEFAULT_control1，所以这个参数也不用您管了。DEFAULT_control1是自动生成的，你把control设成NULL，也仍然会指向它；不过你也可以改成DEFAULT_control2，两者的区别是，前者允许的词语最小长度是1，后者允许的最小长度是2。两者设定的词语最大长度都是25。
+# control是制作DTM/TDM时用的参数，必而是一个带原素名的列表。但这个参数与tm包中DocumentTermMatrix函数所使用的control是不同的，也不会传递给它，这一点请注意，这是0.1.3版的重要变化。可接受的原素包括：wordLengths（词语长度，最小值是1，不能设成0，最大值随便，但不能写成inf）；have（对一个词出现在多少篇文章中进行限制，最小是1，最大任意。设成c(2,50)，代表至少在2篇文章中出现，至多在50篇文章中出现）；bounds（一个词在全部文本中共出现多少回，最小是1，最大随意）；dictionary（如果你只希望生成一个只包含你想要的词的DTM，请用此参数指向一个字符向量，注意，如果这个参数存在，它会覆盖掉wordLengths；而如果你所指定的词实际上一个都不存在，最后的结果会是一个以“NA”为词语的全零对象；weighting（权重计算公式，大家可以自己写算法，但我觉得基本上大家用tm包提供的就行了，分别是tm::weightTfIdf、tm::weightBin，如果只是要看词频，就不用设了，默认就行了）。
+# 你可以自己设control，不过不设也行，反正会指向一个默认值DEFAULT_control1，或者'auto'，或者'auto1'，所以这个参数也不用您管了。DEFAULT_control1是自动生成的，你把control设成NULL，也仍然会指向它；不过你也可以改成DEFAULT_control2，或设成'auto2'，也是另一个可以设的值，允许最小长度是2。两者设定的词语最大长度都是25。
 # myfun1的值应该是一个函数，这个函数将会对被scancn读取出来，但尚未被分词的文本进行处理。默认是NULL，也就是不做处理。
 # myfun2也需指向一个函数，只是这个函数将会被用来对分词之后的文本进行处理。当然你要这个定制函数的结果是一个长度为1的、词与词之间用空格相连的字符向量；如果不是字符向量的话，程序会尝试进行转换。
 # special在读取文件时（也就是当from='dir'）时，只有符合这个模式的文件才会被读
@@ -239,19 +234,19 @@ corp_or_dtm(
 # 好的，还是举栗子吧。需要您动手设的参数真的很少。
 # 程序运行过程会，会弹出提示告诉你机器现在做什么。
 ```R
-# dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar')
-# mycorp=corp_or_dtm(all_text, from='v', stop_word=c('嗯嗯', '呵呵', '去洗澡'))
-# dtm=corp_or_dtm(all_text, from='v', type='dtm', control=DEFAULT_control2)
+dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar')
+mycorp=corp_or_dtm(all_text, from='v', stop_word=c('关系', '数据'))
+dtm=corp_or_dtm(all_text, from='v', type='tdm', control='auto2')
 ```
 #
 # （二）去除停用词
 # ######      make_stoplist
 #
 ```R
-# make_stoplist(x='jiebar') 
+make_stoplist(x='jiebar', print=TRUE)
 ```
 #
-# 你是不是觉得还得去找停用词表太麻烦，好的，没事，用make_stoplist('jiebar')或直接make_stoplist( )什么都不加，就可以直接调用jiebaR的停用词了。
+# 你是不是觉得还得去找停用词表太麻烦，好的，没事，用make_stoplist('jiebar')或直接make_stoplist( )什么都不加，就可以直接调用jiebaR的停用词了。print是指要不要在读取后把前5个词打印在屏幕上方便你查看是否读取成功，默认是TRUE。
 # 如果你想用自己的停用词文件，就输入x，即文件名，就可以读取了。理想情况是你有个TXT文件，其中每个词语占一行。但事实上，可能你的停用词表没那么规范，比如：
 # ------机制，大力、加强,努力, 全面6确保7 完成/实现|实现\n
 # ------全党 NA 不断\t
@@ -273,8 +268,12 @@ slim_text(
 	rm_place = TRUE, #是否删去跟地点相关的，默认为是
 	rm_time = TRUE,  #是否删去跟时间相关的，默认为是
 	rm_eng = FALSE,  #是否删去含英文，默认为否
+	rm_alpha = FALSE, #是否去除字母，默认为否，可以有FALSE, TRUE, "any"三个选项
 	paste = TRUE #是否把结果拼接成一个字符，默认为是
 )
+
+# 要说明的是，有的词虽然只包含字母，但是并不会被标注为eng，所以不能通过rm_eng去掉，此时可通过rm_alpha=TRUE来去掉，且一旦如此，rm_eng的值会被无视。而如果用rm_alpha="any"，那么一个词只要包含一个英文字母，比如“A股”，就会被去掉。
+#
 ```
 # 这样就能达到大量削减词语数的目的了。
 ```R
@@ -307,8 +306,8 @@ txt2csv(
 #
 # #举个例子，把几个文件写到CSV里
 ```R
-# f1_and_f2=paste(f, c('f1', 'f2'), sep='/')
-# txt2csv(f1_and_f2, csv=paste(f, 'iamcsv.csv', sep='/'))
+f1_and_f2=paste(f, c('f1', 'f2'), sep='/')
+txt2csv(f1_and_f2, csv=paste(f, 'iamcsv.csv', sep='/'))
 ```
 # 成功写入后，会发现表格中第一列为完整路径名，第二列为内容。假如原文件没有实质内容，会写入NA。
 #
@@ -477,7 +476,7 @@ sort_tf (
 	must_exact = FALSE
 )
 ```
-# x是DTM或TDM对象；但是也可以是matrix。如果是matrix，请务必用type指明你的这个是"dtm"还是"tdm"。
+# x是DTM或TDM对象；但是也可以是matrix。如果是matrix，请务必用type指明你的这个是"dtm"还是"tdm"，分别用以”D/d“开头的，或以”T/t“开头的代表就行了。
 # top是显示最靠前的多少个词，默认是10。所有词被加总后会按词频从高到底排序，top用来指明要看前多少个词。不过假如你指定看前5个词，第5个词的词频是20，但还有两个词的词频也是20，因此此时函数会显示7个词。如果你真的就只要5个词，那么就把must_exact设成TRUE就行了，默认是FALSE。
 # todf是指是否转化成数据框。默认是FALSE，即不输入任何结果，而是直接把词语和主词频用&连起来，打印到屏幕上。这样，你就可以复制粘贴到EXCEL之类的软件上了。如果是TRUE，则回返回由词语和词频组成的数据框。
 #
@@ -494,7 +493,51 @@ sort_tf(dtm, top = 5)
 ```
 #
 #
+# ######      word_cor
+#
+```R
+word_cor(
+	x,  #DTM/TDM，或matrix
+	word,  #你要查询相关性的词，每次最多30个
+	type = "dtm", #如果x是matrix，用来指明它代表dtm还是tdm，分别用以”D/d“开头的或以”T/t“开头的就行了
+	method = "kendall",  #何种系数，kendall, spearman, pearson
+	p = NULL, #设一个p值，只有当一个相关系数的p值小于此值时，系数才会显示，否则会是NA
+	min = NULL #设一个最小的系数值，只有大于等于此值的系数才会被显示，否则是NA
+	)
+```
+#
+# 这个函数与tm包中的findAssocs计算的差不多，但是更为灵活。第一，findAssocs只能计算pearson素数。但是对于像词频这种极少呈正态分布的数据来说，更适用用等级相关系数，因此word_cor可以让你指定是用pearson，还是spearnman还是kendall。默认是kendall。第二，这个函数直接把相关系数表及P值给出来，这更符合我们平时做研究风需要。第三，这个函数允许通过系数限制和P值限制显示。
+#
+```R
+dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar')
+word_cor(dtm, word=c('新闻', '数据', '可视化'))
+word_cor(dtm, word=c('新闻', '数据', '可视化'), p=0.5)
+```
+#
+#
 # （六）其它函数
+#
+# ######     topic_trend
+#
+```$
+topic_trend(
+	year, #每个话题所在的年份
+	topic,  #每个话题的类别
+	relative = FALSE, #是计算相对数据还是绝对数据
+	zero = 0 #如果某一年某个话题一次都没出现，是算NA上是0，默认是0
+	)
+```
+# 这个函数的应用场景是，你用各种算法已经确定了第个文本的话题，同时也知道这个文本出现的哪一年，于是想算不同的话题在这些年的变化趋势。这个函数本质上就是lm( )一下而已，反映的只是大体上的增减趋势。若用绝对数据，即默认的relative=FALSE，就是拿每年的数量直接计算；如果是相对数据，就是先拿这一年这个话题的数量除以全年文章总和，用这个百分比计算。year参数要求至少要有三个时间点，比如2014:2016，仅两个是不行的。
+# zero的值只能是NA或0。但是如果relative为TRUE的话，那么会直接将所有NA都看成0来计算。
+# 返回结果是一个列表，依次是趋势数据，历年话题的数量汇总，以及历年话题的百分比汇总（如果relative=TRUE）。其中，趋势数据有以下几项，trendIndex就是斜率啦；trendLevel就是斜率的p值；totalTrend是依据以上两个值对趋势进行的判断，如果回归系数大于0，就是rise，反之就是fall，如果p值小于0.05，则是significant rise或significant fall；maxminYear，如果是rise就看最大值出现在哪年，如果是fall就看最小值出现在哪年；detailTrend当为rise时，若最后一年是最大值，则为rise along，否则为rise and fall，当为fall时，若最后一年为最小值，则为fall along，否则为fall and rise；simpleTrend就是看最后一年与第一年的大小，大，就是rise，反之为fall，相等就是equal。
+# 有两种不能计算的特殊情况会在结果中反映出来（但不会报错，所以不用担心）。一种是只有一两个时间点可用，也就是说，一个话题只在一两年中出现过，这种情况下，结果会显示为"less than 3y"以及999。另一种情况是确实每年那个话题的数量都没有变化，此时结果会显示为0、1，以及”almost same“，这些都很容易理解。更详细的说明可以看英文手册。
+# 看例子
+```R
+year=sample(2010: 2016, 200, replace=TRUE)
+topic=sample(c('art', 'law', 'philosophy', 'literature', 'history', 'sociology'), 200, replace=TRUE)
+topic_trend(year, topic)
+```
+#
 #
 # ######      match_pattern
 #
