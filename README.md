@@ -1,4 +1,7 @@
 # Welcome to chinese.misc
+#
+# 更了更了，现在的版本是0.1.3 ！！！！
+#
 # 中文文本分析方便工具R包chinese.misc的中文说明
 #
 # by: Wu Jiang (吴江)，微信号：theblackriver
