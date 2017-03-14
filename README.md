@@ -509,7 +509,7 @@ word_cor(
 	)
 ```
 #
-# 这个函数与tm包中的findAssocs计算的差不多，但是更为灵活。第一，findAssocs只能计算pearson素数。但是对于像词频这种极少呈正态分布的数据来说，更适用用等级相关系数，因此word_cor可以让你指定是用pearson，还是spearnman还是kendall。默认是kendall。第二，这个函数直接把相关系数表及P值给出来，这更符合我们平时做研究风需要。第三，这个函数允许通过系数限制和P值限制显示。
+# 这个函数与tm包中的findAssocs计算的差不多，但是更为灵活。第一，findAssocs只能计算pearson素数。但是对于像词频这种极少呈正态分布的数据来说，更适用用等级相关系数，因此word_cor可以让你指定是用pearson，还是spearnman还是kendall。默认是kendall。第二，这个函数直接把相关系数表及P值给出来，这更符合我们平时做研究风需要。第三，这个函数允许通过系数和P值限制显示。
 #
 ```R
 dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar')
