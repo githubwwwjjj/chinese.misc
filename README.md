@@ -5,8 +5,6 @@
 #
 # by: Wu Jiang (吴江)，微信号：theblackriver
 # 
-# 本文地址：
-# https://github.com/githubwwwjjj/chinese.misc
 # 
 # 重要通知：0.1.3版的chinese.misc已更新，请通过install.packages('chinese.misc')来安装。这一版解决了由于tm包近期升级带来的生成中文dtm时乱码的情况，只要你的文件能正常读出来，那么在生成dtm时就不会乱码。同时，也提高了读文件时应对乱码的能力。另外，增加了计算词语关联和话题增减趋势的函数。
 # 
