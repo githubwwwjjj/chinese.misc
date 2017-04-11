@@ -1,6 +1,7 @@
 # Welcome to chinese.misc
 # 中文文本分析方便工具R包chinese.misc的中文说明
-# 2017-03-24又更，现在是0.1.4，现在可以根据需要设置locale以适应繁体字
+# 2017-04-07又更，0.1.5，dictionary_dtm可根据词语分组来计算每组的词频，适用于大矩阵；适合偷懒用
+# 2017-03-24又更，0.1.4，现在可以根据需要设置locale以适应繁体字
 # by: Wu Jiang (吴江)，微信号：theblackriver
 ***
 # 一、使用方法
@@ -32,6 +33,7 @@ library(jiebaR)
 - seg_file
 - dir_or_file
 - creat_ttm
+-dictionary_dtm
 ## （二）用于去除停用词或无意义词语：
 
 - make_stoplist
@@ -240,6 +242,12 @@ special在读取文件时（也就是当from='dir'）时，只有符合这个模
 dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar')
 mycorp=corp_or_dtm(all_text, from='v', stop_word=c('关系', '数据'))
 dtm=corp_or_dtm(all_text, from='v', type='tdm', control='auto2')
+#
+#如果要往词典里加新词以确保jiebaR能把它分出来，请看以下操作
+library(jiebaR) #需先加载jiebaR
+hehe_cutter=worker(write=FALSE) 
+new_user_word(hehe_cutter, c("大数据", "数据新闻"))
+dtm=corp_or_dtm(all_file, type='dtm', stop_word='jiebar', mycutter=hehe_cutter) #告诉程序要用你自己设的分词器
 ```
 ### create_ttm
 
@@ -263,6 +271,48 @@ ttm=create_ttm(dtm)
 ttm_sparse=ttm[[1]]
 ttm_ordinary=as.matrix(ttm_sparse)
 ttm_word=ttm[[2]]
+```
+### dictionary_dtm
+
+有时候我们不对单个词语的词频感兴趣，而是对字典中一个类别的全部词语感兴趣。比如，我们可能对”大数据“、”云计算“、”人工智能“等很多词语的数量总和感兴趣，对”创业”、“创新”、“人才”、“改革”等词语的总和感兴趣。当然，你可以在生成DTM之后提取并手动加一下。但是这样比较费时间。用这个函数来偷个懒吧。
+```R
+dictionary_dtm(
+	x, #DTM，TDM，或MATRIX
+	dictionary, #词典，即词语分组情况
+	type = "dtm", #当x是MATRIX时，指明它代表DTM（以d/D打头）还是TDM（以t/T打头）
+	simple_sum = FALSE, #是否只要词频在所有文本中的总和，而不需要知道它们在每一篇文章中的数量
+   return_dictionary = FALSE, #是否返回实际使用的词语
+   checks = TRUE #是否检验输入的参数的合法性并尝试转化不合法参数，这个真心不要改成FALSE
+)
+```
+其中，dictionary可以是列表，每个列表代表一个类别的词语，这个列表的每一项都不能是NULL，要至少包含一个有效词语，有NA是可以的。dictionary也可以是向量，代表一组词。还可以是data.frame，每一列（而不是每一行）代表一组词。每组词语中若有重复不用管，因为会自动去重。如果某个词语实际上在DTM中不存在，会被忽略掉；如果一个组里所有词都不存在，那么那个组在最后结果中也仍然会存在，只不过全都是0罢了。
+
+return_dictionary是是否输出实际所用的词典，在此只保留那些确实在DTM里有的词。若为TRUE，输出结果为一个列表，第一项为DTM/TDM，第二项则是这个词典。
+```R
+x <- c(
+  "Hello, what do you want to drink and eat?", 
+  "drink a bottle of milk", 
+  "drink a cup of coffee", 
+  "drink some water", 
+  "eat a cake", 
+  "eat a piece of pizza"
+)
+dtm <- corp_or_dtm(x, from = "v", type = "dtm")
+D <- list( #设词典
+  aa <- c("drink", "eat"),
+  bb <- c("cake", "pizza"),
+  cc <- c("cup", "bottle")
+)
+y1 <- dictionary_dtm(dtm, D, return_dictionary = TRUE)
+D <- data.frame( #词典是data.frame
+  aa <- c("drink", "eat", NA, NA),
+  bb <- c("cake", "pizza", NA, NA),
+  cc <- c("cup", "bottle", NA, NA),
+  dd <- c("do", "to", "of", "and")
+)
+y2 <- dictionary_dtm(dtm, D, simple_sum = TRUE) #假设你只对整体词频感兴趣，simple_sum设为TRUE
+mt <- t(as.matrix(dtm))
+y3 <- dictionary_dtm(mt, D, type = "t", return_dictionary = TRUE) #看看返回的词典
 ```
 ## （二）去除停用词
 ### make_stoplist
@@ -307,7 +357,7 @@ slim_text(
  seg_file(x, from='v')
  # 再看用词性来删词的效果
  slim_text(x)
- 词语数减少四分之一的目的应该可以达到
+ #词语数减少四分之一的目的应该可以达到
 ```
 ## （三）文件格式互转
 
