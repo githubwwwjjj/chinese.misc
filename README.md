@@ -9,7 +9,7 @@
 
 （1）哪里有更多介绍？
 
-——请看英文手册http://mirrors.ustc.edu.cn/CRAN/web/packages/chinese.misc/chinese.misc.pdf，极其详细。
+——请看极其详细的英文手册http://mirrors.ustc.edu.cn/CRAN/web/packages/chinese.misc/chinese.misc.pdf
 
 ——如果您尚不了解如何分词，请看jiebaR包的说明http://qinwenfeng.com/jiebaR/。
 
