@@ -11,7 +11,7 @@
 
 ——请看极其详细的英文手册http://mirrors.ustc.edu.cn/CRAN/web/packages/chinese.misc/chinese.misc.pdf
 
-——如果您尚不了解如何分词，请看jiebaR包的说明http://qinwenfeng.com/jiebaR/。
+——如果您尚不了解如何分词，请看jiebaR包的说明http://qinwenfeng.com/jiebaR/
 
 （2）生成DTM时，如何限制词的长度，比如说，只想要两个或以上字组成的单词？
 
