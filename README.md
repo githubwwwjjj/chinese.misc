@@ -1,9 +1,10 @@
 # Welcome to chinese.misc
 # 中文文本分析方便工具R包chinese.misc的中文说明
+# 2017-8-25又更，0.1.7，之前如果已安装了我给的本地压缩包，请先remove.packages('chinese.misc')，然后再install.packages('chinese.misc')重安。添加了V、VC、VR、VCR、VRC，用来手动复制EXCEL里的表格；添加了get_tag_word，方便批量提取词性，或者有特定词性的词语（比如，提取所有动词）。
 # 2017-05-03又更，0.1.6，没啥明显变化，解决了在用corp_or_dtm生成DTM传给topicmodels包的LDA( )时报错"all.equal...."的问题；scancn现在可以自动去除unicode中的替换词符
 # 2017-04-07又更，0.1.5，dictionary_dtm可根据词语分组来计算每组的词频，适用于大矩阵；适合偷懒用
 # 2017-03-24又更，0.1.4，现在可以根据需要设置locale以适应繁体字
-# by: Wu Jiang (吴江)
+# by: Wu Jiang (吴江)，邮箱：textidea%%%sina.com，把其中%%%换成@
 ***
 # 很多人都问过的问题：
 
@@ -67,7 +68,8 @@ library(jiebaR)
 - seg_file
 - dir_or_file
 - creat_ttm
--dictionary_dtm
+- dictionary_dtm
+- get_tag_word
 ## （二）用于去除停用词或无意义词语：
 
 - make_stoplist
@@ -355,6 +357,46 @@ D <- data.frame( #词典是data.frame
 y2 <- dictionary_dtm(dtm, D, simple_sum = TRUE) #假设你只对整体词频感兴趣，simple_sum设为TRUE
 mt <- t(as.matrix(dtm))
 y3 <- dictionary_dtm(mt, D, type = "t", return_dictionary = TRUE) #看看返回的词典
+```
+### get_tag_word
+
+有多篇文章，我们需要提取其中带某一种或几种词性的词语，比如，提取所有动词。
+```R
+get_tag_word(
+	x, 
+	tag = NULL, 
+	tag_pattern = NULL, 
+	mycutter = DEFAULT_cutter,
+	type = "word", 
+	each = TRUE, 
+	only_unique = FALSE, 
+	keep_name = FALSE,
+	checks = TRUE
+)
+```
+其中，x是所要处理的对象，必须是list，即使只有一篇文本，也必须是list。如果不是list而是向量，请自行用as.list转一下。
+
+tag是你要提取的词性，必须是准确的名称（不准确的名称用tag_pattern，见下），可以是多个词性名的向量，比如c("v","vn")。
+
+tag_pattern是指你要提取的词的词性能够用正则表达式匹配到。比如，你想提取的这些词的词性都以v开头，那就写"^v"；如果你要提取词性名里有u或n的词，就写"u|n"。
+
+mycutter是jiebaR的分词器。
+
+type是指你要提取的是词语还是词语在它所在的文本里的位置。
+
+each为TRUE时，你的每一篇文本在被抽出所要的词后，这些词仍然是列表里的一个向量，x这个列表里原本有几项，得出的结果里就有几项；如果each为FALSE，就会把全部结果都合成一个向量。
+
+only_unique是指，如果一个文本里某个词出现了多词，是只保留一个，还是都保留，默认为FALSE，即保留所有。注意：如果each = FALSE且only_unique = TRUE，那么最后结果是一个向量，并且每个词只出现一次。
+
+keep_name是指提取词之后，是否在最后结果里保留它的词性。
+
+checks默认为TRUE，对参数输入进行检查，这个就不用改了。
+```R
+get_tag_word(x, tag="v")
+get_tag_word(x, tag="v", each=FALSE)
+get_tag_word(x, tag="v", each=FALSE, keep_name=TRUE, only_unique=TRUE)
+get_tag_word(x, tag="v", each=FALSE, keep_name=FALSE, only_unique=FALSE)
+get_tag_word(x, tag=c("vn", "v"), each=FALSE, keep_name=TRUE, only_unique=FALSE)
 ```
 ## （二）去除停用词
 ### make_stoplist
@@ -690,5 +732,26 @@ m <- matrix(s, nrow = 5)
 colnames(m) <- c("r", "text", "mining", "data")
 m2doc(m)
 ```
+### V、VC、VR、VCR、VRC
+
+如果EXCEL上数据不多，就不用让R读了，直接在表格上ctrol+C，然后从剪粘板里弄过来就行了。最重要的是，弄上来之后字符还是字符，不会恼人地被自动转成factor。
+
+如果你ctrl+C的部分只有数据，没有行名或列名，就用V。
+
+如果复制的部分有列名，没行名，用VC。
+
+如果有行名，没列名，用VR。
+
+如果既有行名又有列名，用VCR或VRC。
+
+ V( )，这样就能复制了，什么都不用改。
+
+在什么都不用改的情况下，默认的样子是这样的：V(tofactor = 0, keepblank = 0, sep = "\t")。
+
+其中，tofactor是是否自动把字符转成因子，如果是0或FALSE则不转换（默认），如果是1或TRUE就转换。
+
+keepblank，在tofactor=0或FALSE的情况下（即不进行转换），如果EXCEL中的单元格是空的怎么办？当keepblack为0或FALSE（默认）时，就转成""，也就是空字符；如果是1或TRUE，则转成NA。
+
+sep指每个单元格的数据用什么来区分。如果是从EXCEL里复制，就用默认值；其它情况下也可手动更改成其它单个字符。
 
 # End
