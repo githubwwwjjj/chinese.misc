@@ -392,6 +392,7 @@ keep_name是指提取词之后，是否在最后结果里保留它的词性。
 
 checks默认为TRUE，对参数输入进行检查，这个就不用改了。
 ```R
+x <- lapply(all_file, scancn)
 get_tag_word(x, tag="v")
 get_tag_word(x, tag="v", each=FALSE)
 get_tag_word(x, tag="v", each=FALSE, keep_name=TRUE, only_unique=TRUE)
@@ -498,7 +499,7 @@ which和name_col必须注意。假如你的CSV是在第1列有行标题的，第
 na_in_csv是指，你的表格的单元格中的什么值会被视为缺失值。无论如何，"", " ", "?", "NA", "999"是无论你怎么设置都会被当成缺失的，但是你还可以往上加其它值，比如"0"、"no content"什么的。
 
 na_in_txt假如你的那个单元格是缺失，那么当写入独立文本时写入什么，默认是一个空格。
-ext是独立文本的格式，只能是"txt"、"rtf"和""（即无后缀）三个值；如果是其它的无道值，会被自动设成""。
+ext是独立文本的格式，只能是"txt"、"rtf"和""（即无后缀）三个值；如果是其它的无效值，会被自动设成""。
 ## （四）类型判断、类型转化
 ### is_character_vector
 ```R
@@ -536,7 +537,7 @@ is_positive_integer (x, len = NULL)
 ```
 如果对象长度为0，则返回FALSE，因为is.integer(integer(0))是TRUE，但是is_positive_integer(integer(0))就是FALSE；
 如果是混杂的，比如c(1, 2.0)这样的，也是TRUE；
-不允许有任何NA，否则判断为FALSE，这一定与is_character_integer不同；
+不允许有任何NA，否则判断为FALSE，这一点与is_character_vector不同；
 必须符合由len指定的长度，默认为NULL，即不限长度。 
 
 还是举例吧:
