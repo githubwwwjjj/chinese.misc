@@ -6,8 +6,9 @@
 #    一入江湖岁月催；
 #    鸿图霸业谈笑间，
 #    不胜人生一场醉。
-# 2018-2-6总算修改然后更了一次。增加了一个m3m函数，在matrix、dgCMatrix、simple_triplet_matrix、DTM、TDM之间转化，比较方便，主要是可以避免出现DTM过大时"cannot allocate vector"的错误。见下边介绍。
-# 2017-8-25又更，0.1.7。添加了V、VC、VR、VCR、VRC，用来手动复制EXCEL里的表格；添加了get_tag_word，方便批量提取词性，或者有特定词性的词语（比如，提取所有动词）。
+# 2019-03-05现在是0.2.0版，编码检测现在都由stringi完成，不需要Ruchardet了。
+# 2018-02-06总算修改然后更了一次。增加了一个m3m函数，在matrix、dgCMatrix、simple_triplet_matrix、DTM、TDM之间转化，比较方便，主要是可以避免出现DTM过大时"cannot allocate vector"的错误。见下边介绍。
+# 2017-08-25又更，0.1.7。添加了V、VC、VR、VCR、VRC，用来手动复制EXCEL里的表格；添加了get_tag_word，方便批量提取词性，或者有特定词性的词语（比如，提取所有动词）。
 # 2017-05-03又更，0.1.6，没啥明显变化，解决了在用corp_or_dtm生成DTM传给topicmodels包的LDA( )时报错"all.equal...."的问题；scancn现在可以自动去除unicode中的替换词符
 # 2017-04-07又更，0.1.5，dictionary_dtm可根据词语分组来计算每组的词频，适用于大矩阵；适合偷懒用
 # 2017-03-24又更，0.1.4，现在可以根据需要设置locale以适应繁体字
