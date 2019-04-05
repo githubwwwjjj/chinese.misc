@@ -795,5 +795,3 @@ keepblank，在tofactor=0或FALSE的情况下（即不进行转换），如果EX
 sep指每个单元格的数据用什么来区分。如果是从EXCEL里复制，就用默认值；其它情况下也可手动更改成其它单个字符。
 
 # End
-
-![hehe](https://github.com/githubwwwjjj/chinese.misc/blob/master/ggimage_image1.PNG)
